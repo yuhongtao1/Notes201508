@@ -30,8 +30,8 @@ function siblings(ele){
 		if(p.nodeType==1){
 			//a.unshift(p);
 			a.push(p);
-			[0,1,2,3,4,5]
-			[5,4,3,2,1,0]
+			//[0,1,2,3,4,5]
+			//[5,4,3,2,1,0]
 		}
 		p=p.previousSibling;
 	}
