@@ -41,6 +41,7 @@ function fn5(e){alert(5);
 	
 }
 var fnTemp=null;
+//ie和标准浏览器的dom二级时间绑定和绑定中出现的一些问题 主要this的指向问题 重复绑定 顺序问题
 function bind(ele,type,fn){//把fn方法绑定给ele的type这个事件
 	if(ele.addEventListener){
 		ele.addEventListener(type,fn,false);	
@@ -53,7 +54,7 @@ function bind(ele,type,fn){//把fn方法绑定给ele的type这个事件
 			//if(a[i].photo==fn)return;
 		}
 		var fnTemp=function (){fn.call(ele)}//这样做就可以使fn在执行的时候，让fn的this指向ele
-		fnTemp.photo=fn;//加的这个photo属性，只是让fnTemp和fn有关联
+		fnTemp.photo=fn;//加的这个photo属性，只是让fnTemp和fn有关联解绑的时候使用
 
 		a.push(fnTemp);//仅仅是保存
 		ele.attachEvent("on"+type,fnTemp);
@@ -78,19 +79,24 @@ function unbind(ele,type,fn){
 		
 	}
 }
-
+//把需要绑定的函数保存在数组中 在run中遍历使用
 function on(ele,type,fn){
 	if(!ele["onEvent"+type]){
-		ele["onEvent"+type]=[];//如果数据不存在，则定义数组。	
+		ele["onEvent"+type]=[];//如果数据不存在，则定义数组。"onEvent"+type是一个自定义属性	这个只会执行一次
+			ele.attachEvent("on"+type,function(){run.call(ele)})//避免重复绑定 同时this指向被绑定的方法 按顺序绑定的问题
 	}
 	var a=ele["onEvent"+type];
 	for(var i=0;i<a.length;i++){
-		if(a[i]==fn)return;	
+		if(a[i]==fn)return;	//如果重复那么就不重复绑定了
+	
 	}
 	a.push(fn);//所谓的事件绑定，就是把方法保存到数组里
 	bind(ele,type,run);
 }
-function run(e){
+//把保存在on中的方法按顺序遍历执行数组中的方法执行
+function run(e){//解决调用的问题只为IE的处理
+	//处理兼容性 
+	//取得事件对象
 	e=e||window.event;
 	var type=e.type;
 	if(!e.target){
@@ -100,26 +106,35 @@ function run(e){
 		e.pageX=(document.documentElement.srollLeft||document.body.scrollLeft)+e.clientX;
 		e.pageY=(document.documentElement.scrollTop||document.body.scrollTop)+e.clientY;
 	}
-	var a=this["onEvent"+type];
-	for(var i=0;i<a.length;i++){
+	var a=this["onEvent"+type];//把on中的数组对应出来
+	if(a){//如果a存在就遍历
+		for(var i=0;i<a.length;i++){
 		if(typeof a[i]=="function"){
-			a[i].call(this,e);
+			a[i].call(this,e);//将event当参数传给方法
 		}else{
+			//因为在off中我们是用a[i]=null删除的 不是用splice避免数组中空项无线增加所以不是function就删除
 			a.splice(i,1);
 			i--;
 		}
 	}
+	}
 	
-	[fn1,fn2,fn3,fn4,fn5]
+	
+	//[fn1,fn2,fn3,fn4,fn5]
 	//第二次触发click事件
 	//从i=0开始遍历执行数据里的方法，fn1执行，删除fn1,fn2，
 	//[fn3,fn4,fn5] i++,i=1 a[i]()
 }
-
+//从数组中找到某一项删掉
+//移除事件的方法
 function off(ele,type,fn){
-	var a=ele["onEvent"+type];
-	if(a){
-		for(var i=0;i<a.length;i++){
+	if(ele.removeEventListener){
+			ele.removeEventListener(type,fn,false);
+			return;
+		}
+	var a=ele["onEvent"+type];//把on中的数组对应过来
+	if(a){//如果数组存在
+		for(var i=0;i<a.length;i++){//遍历数组中的每一项
 			if(a[i]==fn){
 				//a.splice(i,1);//直接删除容易造成数组塌陷
 				a[i]=null;

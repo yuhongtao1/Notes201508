@@ -20,13 +20,16 @@
 	
 	var ele=document.getElementById("div1");
 	on(ele,"mousedown",down);
-	function down(e){//准备拖拽
-		this.x=this.offsetLeft;
+	function down(e){//准备拖拽要把盒子原始的位置保留下来
+		this.x=this.offsetLeft;//用getCss方法更好
 		this.y=this.offsetTop;
-		this.mx=e.pageX;
+		this.mx=e.pageX;//把鼠标的坐标保留下来
 		this.my=e.pageY;
+		//当鼠标按下去才拖拽
+		//ie中将盒子和鼠标拴住
 		if(this.setCapture){
 			this.setCapture();
+			//绑定事件直接绑定快速拖拽会丢掉鼠标的焦点对ie来说将鼠标和盒子栓个绳子
 			on(this,"mousemove",move);
 			on(this,"mouseup",up);
 		}else{//chrome使用类似于“委托”的方式来解决
@@ -38,20 +41,23 @@
 			this.UP=function(e){up.call(that,e)}
 			
 			function processThis(obj,fn){
+				功能不变this强制指向obj
 				return function(a,e){fn.call(obj,e)}
 			}*/
 			
 		/*	this.MOVE=processThis(this,move);
 			this.UP=processThis(this,up);*/
-			this.MOVE=move.bind(this);
+			//
+			this.MOVE=move.bind(this);//为了让其他作用域可以访问到给这个被操作元素加自定义属性
 			this.UP=up.bind(this);
 			//在Function类的原型上也定义着一个bind方法，功能和processThis相同
 			
-			
+			//类似委托将鼠标绑到大的 就不会丢掉焦点
 			on(document,"mousemove",this.MOVE);
 			on(document,"mouseup",this.UP);
 			
 		}
+		e.preventDefault();//阻止浏览器的默认选中样式 浏览器的选中会认为被拖拽 这样鼠标和盒子粘到一起甩不掉
 	}
 	
 /*	function fn3(a,b,c,d){};
@@ -72,6 +78,7 @@
 	}
 	
 	function up(e){//结束拖拽
+		//ie
 		if(this.releaseCapture){
 			this.releaseCapture();
 			off(this,"mousemove",move);

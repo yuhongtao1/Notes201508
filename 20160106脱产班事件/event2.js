@@ -22,7 +22,7 @@ function on(ele,type,fn){//如果事件类型是以self为前缀的，则说明�
 		ele.attachEvent("on"+type,function(){run.call(ele)})
 		//ele.attachEvent("on"+type,processThis(ele,run));
 	}
-	var a=ele["onEvent"+type]
+	var a=ele["onEvent"+type];
 	for(var i=0;i<a.length;i++){
 		if(a[i]==fn)return;	
 		}
@@ -46,7 +46,7 @@ function run(){
 	if(typeof a[i]=="function"){
 		a[i].call(this,e);//把事件对象e传给数组里的方法
 		}else{
-			a.splice(i,1)
+			a.splice(i,1);
 			i--;
 			}
 	}

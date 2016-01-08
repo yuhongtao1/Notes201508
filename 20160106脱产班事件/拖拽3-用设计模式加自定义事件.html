@@ -30,8 +30,8 @@ on(oDiv3,"mousedown",down);
 //现在的问题是把拖拽和动画搅在了一起
 
 //不同的模块之间，既是独立的，还可以通过某种途径接合在一起
-
-on(oDiv1,"selfDragStart",clearEffect);
+//把清除动画约定了鼠标按下的方法都绑定给oDiv1
+on(oDiv1,"selfDragStart",clearEffect);//约定
 on(oDiv1,"selfDragging",getSpeed);
 on(oDiv1,"selfDragEnd",fly);
 on(oDiv1,"selfDragEnd",drop);
