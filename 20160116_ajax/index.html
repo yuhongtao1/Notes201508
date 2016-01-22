@@ -27,13 +27,13 @@
          * 这是ajax的第一步(1/4)
          */
         var getXHR = function () {
-            if (window.XMLHttpRequest) {
+            if (window.XMLHttpRequest) {//如果不写window会报错 写了就会当做是window的一个属性不会报错找不到就是undefined
                 return new XMLHttpRequest();
             }
-            return new ActiveXObject('Microsoft.XMLHTTP');
+            return new ActiveXObject('Microsoft.XMLHTTP');//低版本创建ajax对象
         };
         // 1/4
-        var xhr = getXHR();
+        var xhr = getXHR();//创建一个ajax的一个实例对象
         // 2/4
         // 建立http连接
         // 该方法有两个必传参数，3个可选参数
